@@ -25,13 +25,10 @@ config.TRAIN.n_epoch = 32
 config.TRAIN.lr_decay = 0.1
 config.TRAIN.decay_every = 10#int(config.TRAIN.n_epoch / 2)
 
-config.TRAIN.hr_img_path = 'D:/depth_dev/depth_datasets/SYNTHIA/'#SYNTHIA-SEQS-06-SPRING/'
-config.TRAIN.lr_img_path = 'data2017/DIV2K_train_LR_bicubic/X4/'
-
+config.TRAIN.hr_img_path = '/depth_datasets/SYNTHIA/'
 config.VALID = edict()
 ## test set location
-config.VALID.hr_img_path = 'D:/depth_dev/depth_datasets/SYNTHIA/SYNTHIA-SEQS-05-SPRING/'
-config.VALID.lr_img_path = 'data2017/DIV2K_valid_LR_bicubic/X4/'
+config.VALID.hr_img_path = '/depth_dev/depth_datasets/SYNTHIA/SYNTHIA-SEQS-05-SPRING/'
 
 def log_config(filename, cfg):
     with open(filename, 'w') as f:
