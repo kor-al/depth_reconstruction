@@ -33,12 +33,12 @@ decay_every = config.TRAIN.decay_every
 
 small_size = config.TRAIN.small_size
 big_size = config.TRAIN.big_size
-vgg16_npy_path = "D:/depth_dev/YandexDisk/korinevskaya-gtx1080/depth_srgan/vgg/vgg16.npy"
+vgg16_npy_path = "vgg/vgg16.npy"
 
 ni = int(np.sqrt(batch_size))
 
-# init_g_model_dir = 'D:/depth_dev/srres_ps/model.ckpt'
-#init_g_model_dir = 'D:/depth_dev/YandexDisk/korinevskaya-gtx1080/depth_srgan/checkpoint/gan/model16.ckpt'
+# init_g_model_dir = 'srres_ps/model.ckpt'
+#init_g_model_dir = 'checkpoint/gan/model16.ckpt'
 
 do_init_g = True
 
@@ -361,152 +361,6 @@ def train():
         saver.save(sess, os.path.join(checkpoint_dir + '/gan', 'model' + str(n_epoch_init + epoch) + '.ckpt'))
 
 
-'''
-
-def evaluate():
-    ## create folders to save result images
-    save_dir = "samples/{}".format(tl.global_flag['mode'])
-    tl.files.exists_or_mkdir(save_dir)
-    checkpoint_dir = "checkpoint"
-
-    ###====================== PRE-LOAD DATA ===========================###
-    # train_hr_img_list = sorted(tl.files.load_file_list(path=config.TRAIN.hr_img_path, regx='.*.png', printable=False))
-    # train_lr_img_list = sorted(tl.files.load_file_list(path=config.TRAIN.lr_img_path, regx='.*.png', printable=False))
-    # valid_hr_img_list = sorted(tl.files.load_file_list(path=config.VALID.hr_img_path, regx='.*.png', printable=False))
-    # valid_lr_img_list = sorted(tl.files.load_file_list(path=config.VALID.lr_img_path, regx='.*.png', printable=False))
-
-    ## If your machine have enough memory, please pre-load the whole train set.
-    # train_hr_imgs = tl.vis.read_images(train_hr_img_list, path=config.TRAIN.hr_img_path, n_threads=32)
-    # for im in train_hr_imgs:
-    #     print(im.shape)
-    # valid_lr_imgs = tl.vis.read_images(valid_lr_img_list, path=config.VALID.lr_img_path, n_threads=32)
-    # for im in valid_lr_imgs:
-    #     print(im.shape)
-    # valid_hr_imgs = tl.vis.read_images(valid_hr_img_list, path=config.VALID.hr_img_path, n_threads=32)
-
-
-    valid_hr_img_list = sorted(get_synthia_imgs_list(config.VALID.hr_img_path, is_train=False))
-    valid_hr_imgs = tl.prepro.threading_data(valid_hr_img_list, thread_count=32, fn=get_imgs_fn)
-
-    for im in valid_hr_imgs:
-        print(im.shape)
-    # exit()
-
-
-    ###========================== RESTORE G =============================###
-
-    t_image = tf.placeholder('float32', [1, None, None, 3], name='input_image')
-    net_g = SRGAN_g(t_image, is_train=False, reuse=False)
-    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=False))
-    tl.layers.initialize_global_variables(sess)
-    tl.files.load_and_assign_npz(sess=sess, name=checkpoint_dir + '/g_srgan.npz', network=net_g)
-
-    times = []
-    totalim = len(valid_lr_imgs)
-    for imid in range(0, totalim):
-        ###========================== DEFINE MODEL ============================###
-        # imid = 64  # 0: 企鹅  81: 蝴蝶 53: 鸟  64: 古堡
-        valid_hr_img = preprocess_fn(valid_hr_imgs[imid], is_small=False, normalize=True)
-        valid_lr_img = preprocess_fn(valid_hr_img, is_small=True, normalize=False)
-        # valid_lr_img = get_imgs_fn('test.png', 'data2017/')  # if you want to test your own image
-        # valid_lr_img = (valid_lr_img / 127.5) - 1  # rescale to ［－1, 1]
-        print(valid_lr_img.min(), valid_lr_img.max())
-
-        size = valid_lr_img.shape
-        # t_image = tf.placeholder('float32', [None, size[0], size[1], size[2]], name='input_image') # the old version of TL need to specify the image size
-
-
-        ###======================= EVALUATION =============================###
-        start_time = time.time()
-        out = sess.run(net_g.outputs, {t_image: [valid_lr_img]})
-        print("took: %4.4fs" % (time.time() - start_time))
-        times.append((time.time() - start_time))
-
-        print("LR size: %s /  generated HR size: %s" % (
-        size, out.shape))  # LR size: (339, 510, 3) /  gen HR size: (1, 1356, 2040, 3)
-        print("[*] save images")
-        tl.vis.save_image(out[0], save_dir + '/gen/valid_gen' + str(imid) + '.png')
-        tl.vis.save_image(out[0], save_dir + '/valid_gen' + str(imid) + '.png')
-
-        tl.vis.save_image(valid_lr_img, save_dir + '/valid_lr' + str(imid) + '.png')
-        tl.vis.save_image(valid_hr_img, save_dir + '/valid_hr' + str(imid) + '.png')
-
-        out_bicu = scipy.misc.imresize(valid_lr_img, [size[0] * 4, size[1] * 4], interp='bicubic', mode=None)
-        tl.vis.save_image(out_bicu, save_dir + '/valid_bicubic' + str(imid) + '.png')
-
-    print('Average time per SR operation = ', np.mean(times))
-
-
-def evaluate2path():
-    ## create folders to save result images
-    save_dir = "samples/{}".format(tl.global_flag['mode'])
-    tl.files.exists_or_mkdir(save_dir)
-    checkpoint_dir = "checkpoint"
-
-    ###====================== PRE-LOAD DATA ===========================###
-    # train_hr_img_list = sorted(tl.files.load_file_list(path=config.TRAIN.hr_img_path, regx='.*.png', printable=False))
-    # train_lr_img_list = sorted(tl.files.load_file_list(path=config.TRAIN.lr_img_path, regx='.*.png', printable=False))
-    valid_hr_img_list = sorted(tl.files.load_file_list(path=config.VALID.hr_img_path, regx='.*.png', printable=False))
-    valid_lr_img_list = sorted(tl.files.load_file_list(path=config.VALID.lr_img_path, regx='.*.png', printable=False))
-
-    ## If your machine have enough memory, please pre-load the whole train set.
-    # train_hr_imgs = tl.vis.read_images(train_hr_img_list, path=config.TRAIN.hr_img_path, n_threads=32)
-    # for im in train_hr_imgs:
-    #     print(im.shape)
-    valid_lr_imgs = tl.vis.read_images(valid_lr_img_list, path=config.VALID.lr_img_path, n_threads=32)
-    for im in valid_lr_imgs:
-        print(im.shape)
-    valid_hr_imgs = tl.vis.read_images(valid_hr_img_list, path=config.VALID.hr_img_path, n_threads=32)
-    for im in valid_hr_imgs:
-        print(im.shape)
-    # exit()
-
-
-    ###========================== RESTORE G =============================###
-
-    t_image = tf.placeholder('float32', [1, None, None, 3], name='input_image')
-    net_g = SRGAN_g(t_image, is_train=False, reuse=False)
-    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=False))
-    tl.layers.initialize_global_variables(sess)
-    tl.files.load_and_assign_npz(sess=sess, name=checkpoint_dir + '/g_srgan.npz', network=net_g)
-
-    times = []
-    totalim = len(valid_lr_imgs)
-    for imid in range(0, totalim):
-        ###========================== DEFINE MODEL ============================###
-        # imid = 64  # 0: 企鹅  81: 蝴蝶 53: 鸟  64: 古堡
-        valid_lr_img = valid_lr_imgs[imid]
-        valid_hr_img = valid_hr_imgs[imid]
-        # valid_lr_img = get_imgs_fn('test.png', 'data2017/')  # if you want to test your own image
-        valid_lr_img = (valid_lr_img / 127.5) - 1  # rescale to ［－1, 1]
-        # print(valid_lr_img.min(), valid_lr_img.max())
-
-        size = valid_lr_img.shape
-        # t_image = tf.placeholder('float32', [None, size[0], size[1], size[2]], name='input_image') # the old version of TL need to specify the image size
-
-
-        ###======================= EVALUATION =============================###
-        start_time = time.time()
-        out = sess.run(net_g.outputs, {t_image: [valid_lr_img]})
-        print("took: %4.4fs" % (time.time() - start_time))
-        times.append((time.time() - start_time))
-
-        print("LR size: %s /  generated HR size: %s" % (
-        size, out.shape))  # LR size: (339, 510, 3) /  gen HR size: (1, 1356, 2040, 3)
-        print("[*] save images")
-        tl.vis.save_image(out[0], save_dir + '/gen/valid_gen' + str(imid) + '.png')
-        tl.vis.save_image(out[0], save_dir + '/valid_gen' + str(imid) + '.png')
-
-        tl.vis.save_image(valid_lr_img, save_dir + '/valid_lr' + str(imid) + '.png')
-        tl.vis.save_image(valid_hr_img, save_dir + '/valid_hr' + str(imid) + '.png')
-
-        out_bicu = scipy.misc.imresize(valid_lr_img, [size[0] * 4, size[1] * 4], interp='bicubic', mode=None)
-        tl.vis.save_image(out_bicu, save_dir + '/valid_bicubic' + str(imid) + '.png')
-
-    print('Average time per SR operation = ', np.mean(times))
-    '''
-
-
 if __name__ == '__main__':
     import argparse
 
@@ -521,6 +375,7 @@ if __name__ == '__main__':
     if tl.global_flag['mode'] == 'srgan':
         train()
     elif tl.global_flag['mode'] == 'evaluate':
-        evaluate()
+        pass
+        #evaluate()
     else:
         raise Exception("Unknow --mode")
