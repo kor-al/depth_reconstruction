@@ -5,7 +5,12 @@ Depth Reconstruction Research
 
 2. The code for the super-resolving network is written based on the TensorFlow implementation of "Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network" (https://github.com/tensorlayer/srgan).
 
-[NB] The code in this repo does not describe the finished product but mostly represents the experiments and research meaterials.
+3. The code for unfinished research on interpolation guided by edges.
+
+[NB] The code in this repo DOES NOT describe the finished product but mostly represents the experiments and research materials.
+Please refer to the papers for the exact parameters!
+
+[NB] VGG weights are used in all these networks.
 
 
 Research works based on these resources:
