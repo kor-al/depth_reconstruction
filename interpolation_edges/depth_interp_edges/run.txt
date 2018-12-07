@@ -1,0 +1,6 @@
+activate denv
+d:
+cd D:\depth_dev\YandexDisk\korinevskaya-gtx1080\depth_interp_edges
+python train.py 
+
+# :)
