@@ -1,5 +1,4 @@
-# depth_reconstruction
-Depth Reconstruction Research
+# Depth Reconstruction Research
 
 1. The fast interpolation method is composed of the interpolating and super-resolving networks described in the paper "Semi-Dense Depth Interpolation using Deep Convolutional Neural Networks" by 	Ilya Makarov, Vladimir Aliev and Olga Gerasimova. The original code has been written by Vladimir Aliev and used here for research purposes. 
 
@@ -12,10 +11,19 @@ Please refer to the papers for the exact parameters!**
 
 [NB] VGG weights are used in all these networks.
 
-
 Research works based on these resources:
 
 1. Fast Semi-dense Depth Map Estimation https://dl.acm.org/citation.cfm?doid=3210499.3210529
 2. Super-resolution of interpolated downsampled semi-dense depth map https://dl.acm.org/citation.cfm?id=3208821
 3. Sparse Depth Map Interpolation using Deep Convolutional Neural Networks https://ieeexplore.ieee.org/document/8441443/
 4. Fast depth map super-resolution using deep neural network https://www.ismar2018.org/papers/ismar2018_pcs_poster_1185.html
+
+# Example
+
+Super-resolution results of the proposed method (green box) compared to 
+- a state-of-the-art method (last image, DEN (RGB guided) and RGB SRGAN methods),
+- results from the paper "Semi Dense Depth Interpolation using Deep Convolutional Neural Networks“ I. Makarov, et al. the 2017 ACM (4th image)
+- bicubic interpolation (3rd image) 
+- ground truth (2nd image)
+
+![Alt text](SR_results_comparison.png?raw=true "Optional Title")
